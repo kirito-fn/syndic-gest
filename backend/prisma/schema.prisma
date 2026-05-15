@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  password  String
+  name      String
+  role      String    @default("MANAGER")
+  buildingId Int?
+  building  Building? @relation(fields: [buildingId], references: [id], onDelete: SetNull)
+  paymentLogs PaymentLog[]
+  notifications NotificationLog[]
+  createdAt DateTime  @default(now())
+}
+
+model Building {
+  id        Int        @id @default(autoincrement())
+  name      String
+  address   String
+  users     User[]
+  residents Resident[]
+  charges   Charge[]
+  createdAt DateTime   @default(now())
+}
+
+model Resident {
+  id         Int       @id @default(autoincrement())
+  buildingId Int
+  building   Building  @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  firstName  String
+  lastName   String
+  apartment  String
+  phone      String
+  email      String
+  payments   Payment[]
+  notifications NotificationLog[]
+  createdAt  DateTime  @default(now())
+}
+
+model Payment {
+  id         Int         @id @default(autoincrement())
+  residentId Int
+  resident   Resident    @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  month      Int
+  year       Int
+  amount     Float
+  status     String      @default("UNPAID")
+  noPayment  Boolean     @default(false)
+  paidAt     DateTime?
+  verifiedAt DateTime?
+  logs       PaymentLog[]
+  createdAt  DateTime    @default(now())
+
+  @@unique([residentId, month, year])
+}
+
+model PaymentLog {
+  id         Int       @id @default(autoincrement())
+  paymentId  Int
+  payment    Payment   @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  userId     Int
+  user       User      @relation(fields: [userId], references: [id])
+  action     String
+  oldStatus  String?
+  newStatus  String?
+  reason     String?
+  createdAt  DateTime  @default(now())
+}
+
+model Charge {
+  id          Int       @id @default(autoincrement())
+  buildingId  Int
+  building    Building  @relation(fields: [buildingId], references: [id], onDelete: Cascade)
+  amount      Float
+  month       Int
+  year        Int
+  description String
+  createdAt   DateTime  @default(now())
+}
+
+model NotificationLog {
+  id         Int       @id @default(autoincrement())
+  residentId Int
+  resident   Resident  @relation(fields: [residentId], references: [id], onDelete: Cascade)
+  userId     Int
+  user       User      @relation(fields: [userId], references: [id])
+  type       String
+  message    String
+  status     String    @default("SENT")
+  createdAt  DateTime  @default(now())
+}
