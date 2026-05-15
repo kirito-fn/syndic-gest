@@ -58,6 +58,7 @@ export default function Login() {
           </button>
         </form>
         <p className="text-xs text-gray-400 dark:text-gray-500 text-center mt-6">Admin: admin@syndic.fr / admin123</p>
+        <p className="text-[10px] text-gray-300 dark:text-gray-600 text-center mt-3 select-none">Built by ILIASFANANE</p>
       </div>
     </div>
   );

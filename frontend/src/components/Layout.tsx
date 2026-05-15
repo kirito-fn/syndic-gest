@@ -55,6 +55,7 @@ export default function Layout() {
           <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 w-full transition-colors">
             <LogOut className="w-5 h-5" /> Déconnexion
           </button>
+          <p className="text-[10px] text-gray-400 dark:text-gray-600 text-center mt-2 select-none">Built by ILIASFANANE</p>
         </div>
       </aside>
       <div className="flex-1 flex flex-col min-w-0">
