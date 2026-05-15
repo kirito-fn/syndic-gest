@@ -7,20 +7,20 @@ type Translations = typeof fr;
 
 interface LanguageContextType {
   lang: Lang;
-  t: (path: string) => string;
+  t: (path: string) => any;
   currency: string;
   dir: 'ltr' | 'rtl';
   toggleLang: () => void;
 }
 
-function resolvePath(obj: any, path: string): string {
+function resolvePath(obj: any, path: string): any {
   const keys = path.split('.');
   let result = obj;
   for (const key of keys) {
     if (result?.[key] === undefined) return path;
     result = result[key];
   }
-  return typeof result === 'string' ? result : path;
+  return result ?? path;
 }
 
 const translations: Record<Lang, Translations> = { fr, ar };
