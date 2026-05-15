@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { useLang } from '../contexts/LanguageContext';
 import { Plus, Edit2, Trash2, Building2, Users as UsersIcon, Upload, X } from 'lucide-react';
 
 export default function Buildings() {
   const { user } = useAuth();
+  const { t } = useLang();
   const [buildings, setBuildings] = useState<any[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<any>(null);
@@ -28,7 +30,7 @@ export default function Buildings() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!window.confirm('Supprimer ce bâtiment ? Tous les résidents, paiements et charges seront supprimés.')) return;
+    if (!window.confirm(t('buildings.deleteConfirm'))) return;
     await api.delete(`/buildings/${id}`);
     setBuildings(buildings.filter((b) => b.id !== id));
   };
@@ -47,11 +49,11 @@ export default function Buildings() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Bâtiments</h1>
+        <h1 className="text-2xl font-bold text-gray-800 dark:text-white">{t('buildings.title')}</h1>
         {user?.role === 'ADMIN' && (
           <button onClick={() => { setEditing(null); setForm({ name: '', address: '' }); setShowModal(true); }}
             className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700">
-            <Plus className="w-4 h-4" /> Nouveau bâtiment
+            <Plus className="w-4 h-4" /> {t('buildings.new')}
           </button>
         )}
       </div>
@@ -75,13 +77,13 @@ export default function Buildings() {
               )}
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-3">
-              <UsersIcon className="w-4 h-4" /> {b._count?.residents || 0} résidents
+              <UsersIcon className="w-4 h-4" /> {b._count?.residents || 0} {t('common.residents')}
             </div>
-            {b.users?.[0] && <p className="text-xs text-gray-400 dark:text-gray-500">Gestionnaire: {b.users[0].name}</p>}
+            {b.users?.[0] && <p className="text-xs text-gray-400 dark:text-gray-500">{t('buildings.manager')} {b.users[0].name}</p>}
             {user?.role === 'ADMIN' && (
               <button onClick={() => { setImportBuildingId(b.id); setImporting(true); }}
                 className="mt-3 flex items-center gap-2 text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700">
-                <Upload className="w-4 h-4" /> Importer Excel
+                <Upload className="w-4 h-4" /> {t('buildings.import')}
               </button>
             )}
           </div>
@@ -91,16 +93,16 @@ export default function Buildings() {
       {showModal && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50" onClick={() => setShowModal(false)}>
           <div className="bg-white dark:bg-gray-900 rounded-xl p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">{editing ? 'Modifier' : 'Nouveau'} bâtiment</h2>
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">{editing ? t('buildings.edit') : t('buildings.new')}</h2>
             <div className="space-y-3">
-              <input placeholder="Nom" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
+              <input placeholder={t('buildings.name')} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
                 className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" />
-              <input placeholder="Adresse" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })}
+              <input placeholder={t('buildings.address')} value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })}
                 className="w-full px-4 py-2.5 border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-500" />
             </div>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setShowModal(false)} className="flex-1 py-2.5 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-800">Annuler</button>
-              <button onClick={handleSave} className="flex-1 py-2.5 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700">Enregistrer</button>
+              <button onClick={() => setShowModal(false)} className="flex-1 py-2.5 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-800">{t('common.cancel')}</button>
+              <button onClick={handleSave} className="flex-1 py-2.5 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700">{t('common.save')}</button>
             </div>
           </div>
         </div>
@@ -109,10 +111,10 @@ export default function Buildings() {
       {importing && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50" onClick={() => setImporting(false)}>
           <div className="bg-white dark:bg-gray-900 rounded-xl p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">Importer des résidents</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">Format: Prénom, Nom, Appartement, Téléphone, Email (colonnes A-E)</p>
+            <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">{t('buildings.importTitle')}</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">{t('buildings.importFormat')}</p>
             <input type="file" accept=".xlsx,.xls" onChange={handleImport} className="mb-4 text-sm text-gray-700 dark:text-gray-300" />
-            <button onClick={() => setImporting(false)} className="w-full py-2.5 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-800">Fermer</button>
+            <button onClick={() => setImporting(false)} className="w-full py-2.5 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm hover:bg-gray-50 dark:hover:bg-gray-800">{t('common.close')}</button>
           </div>
         </div>
       )}
